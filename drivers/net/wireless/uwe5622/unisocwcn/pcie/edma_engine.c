@@ -100,11 +100,8 @@ static int wait_wcnevent(struct event_t *event, int timeout)
 	if (timeout < 0) {
 		int dt;
 		struct timeval time;
-		struct timespec now;
 
-		getnstimeofday(&now);
-		time.tv_sec = now.tv_sec;
-		time.tv_usec = now.tv_nsec/1000;
+		do_gettimeofday(&time);
 		if (event->wait_sem.count == 0) {
 			if (event->flag == 0) {
 				event->flag = 1;
@@ -1385,13 +1382,9 @@ int edma_tp_count(int chn, void *head, void *tail, int num)
 	struct mbuf_t *mbuf;
 	static int bytecount;
 	static struct timeval start_time, time;
-	struct timespec now;
 
 	for (i = 0, mbuf = (struct mbuf_t *)head; i < num; i++) {
-		getnstimeofday(&now);
-		time.tv_sec = now.tv_sec;
-		time.tv_usec = now.tv_nsec/1000;
-
+		do_gettimeofday(&time);
 		if (bytecount == 0)
 			start_time = time;
 		bytecount += mbuf->len;

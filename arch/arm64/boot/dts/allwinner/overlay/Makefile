@@ -46,11 +46,24 @@ dtbo-$(CONFIG_ARCH_SUNXI) += \
 	sun50i-h6-uart1.dtbo \
 	sun50i-h6-uart2.dtbo \
 	sun50i-h6-uart3.dtbo \
-	sun50i-h6-w1-gpio.dtbo
+	sun50i-h6-w1-gpio.dtbo \
+	sun50i-h616-i2c0.dtbo \
+	sun50i-h616-i2c1.dtbo \
+	sun50i-h616-i2c2.dtbo \
+	sun50i-h616-ruart.dtbo \
+	sun50i-h616-spi-add-cs1.dtbo \
+	sun50i-h616-spi-jedec-nor.dtbo \
+	sun50i-h616-spi-spidev.dtbo \
+	sun50i-h616-spi-spidev1.dtbo \
+	sun50i-h616-uart1.dtbo \
+	sun50i-h616-uart2.dtbo \
+	sun50i-h616-uart3.dtbo \
+	sun50i-h616-w1-gpio.dtbo
 
 scr-$(CONFIG_ARCH_SUNXI) += \
 	sun50i-a64-fixup.scr \
 	sun50i-h5-fixup.scr \
+	sun50i-h616-fixup.scr \
 	sun50i-h6-fixup.scr
 
 dtbotxt-$(CONFIG_ARCH_SUNXI) += \

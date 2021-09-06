@@ -80,6 +80,8 @@ enum hi_GPIO_DIR_E {
 #ifdef CONFIG_AW_BOARD
 #include <linux/pm_wakeirq.h>
 extern void sunxi_wlan_set_power(int on);
+extern int sunxi_wlan_get_oob_irq(void);
+extern int sunxi_wlan_get_oob_irq_flags(void);
 
 struct gpio_config {
 	u32	gpio;
@@ -99,7 +101,6 @@ struct gpio_config {
 #endif
 static char *wcn_fw_path[WCN_FW_MAX_PATH_NUM] = {
 	UNISOC_FW_PATH_DEFAULT,		/* most of projects */
-	"/vendor/etc/firmware/",	/* allwinner h6/h616... */
 	"/lib/firmware/"		/* allwinner r328... */
 };
 #define WCN_FW_NAME	"wcnmodem.bin"
@@ -108,9 +109,6 @@ static char *wcn_fw_path[WCN_FW_MAX_PATH_NUM] = {
 #ifndef REG_PMU_APB_XTL_WAIT_CNT0
 #define REG_PMU_APB_XTL_WAIT_CNT0 0xe42b00ac
 #endif
-
-MODULE_LICENSE("GPL");
-MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
 
 static char BTWF_FIRMWARE_PATH[255];
 static char GNSS_FIRMWARE_PATH[255];
@@ -326,6 +324,8 @@ static struct regmap *reg_map;
 #define AFC_CALI_FLAG 0x54463031 /* cali flag */
 #define AFC_CALI_READ_FINISH 0x12121212
 #define WCN_AFC_CALI_PATH "/productinfo/wcn/tsx_bt_data.txt"
+
+#define BIT(nr) (1UL << (nr))
 
 #ifdef CONFIG_WCN_DOWNLOAD_FIRMWARE_FROM_HEX
 #define POWER_WQ_DELAYED_MS 0
@@ -572,6 +572,7 @@ static int marlin_find_sdio_device_id(unsigned char *path)
 {
 	int i, open_cnt = 6;
 	struct file *filp;
+	mm_segment_t fs;
 	loff_t pos;
 	unsigned char read_buf[64], sdio_id_path[64];
 	char *sdio_id_pos;
@@ -592,17 +593,21 @@ static int marlin_find_sdio_device_id(unsigned char *path)
 	}
 	WCN_INFO("%s open %s success cnt=%d\n", __func__,
 		 sdio_id_path, i);
+	fs = get_fs();
+	set_fs(KERNEL_DS);
 	pos = 0;
-	kernel_read(filp, read_buf, sizeof(read_buf), &pos);
+	vfs_read(filp, read_buf, sizeof(read_buf), &pos);
 	WCN_INFO("%s read_buf: %s\n", __func__, read_buf);
 	sdio_id_pos = strstr(read_buf, "SDIO_ID=0000:0000");
 	if (!sdio_id_pos) {
 		WCN_ERR("%s sdio id not match (0000:0000)\n", __func__);
 		filp_close(filp, NULL);
+		set_fs(fs);
 		/* other module */
 		return -1;
 	}
 	filp_close(filp, NULL);
+	set_fs(fs);
 	WCN_INFO("%s: This is unisoc module\n", __func__);
 
 	/* unisoc module */
@@ -985,8 +990,8 @@ struct marlin_firmware {
 static int marlin_request_firmware(struct marlin_firmware **mfirmware_p)
 {
 	struct marlin_firmware *mfirmware;
-	unsigned char load_fw_cnt = 0;
 #ifndef CONFIG_WCN_DOWNLOAD_FIRMWARE_FROM_HEX
+	unsigned char load_fw_cnt = 0;
 	const void *buffer;
 	const struct firmware *firmware;
 	int ret = 0;
@@ -1415,14 +1420,15 @@ static int marlin_registsr_bt_wake(struct device *dev)
 {
 	struct device_node *np;
 	int bt_wake_host_gpio, ret = 0;
-	enum of_gpio_flags config;
+	struct gpio_config config;
 
 	np = of_find_compatible_node(NULL, NULL, "allwinner,sunxi-btlpm");
 	if (!np) {
 		WCN_ERR("dts node for bt_wake not found");
 		return -EINVAL;
 	}
-	bt_wake_host_gpio = of_get_named_gpio_flags(np, "bt_hostwake", 0, &config);
+	bt_wake_host_gpio = of_get_named_gpio_flags(np, "bt_hostwake", 0,
+		(enum of_gpio_flags *)&config);
 	if (!gpio_is_valid(bt_wake_host_gpio)) {
 		WCN_ERR("bt_hostwake irq is invalid: %d\n",
 			bt_wake_host_gpio);
@@ -1446,8 +1452,10 @@ static int marlin_registsr_bt_wake(struct device *dev)
 
 	marlin_dev->bt_wake_host_int_num = gpio_to_irq(bt_wake_host_gpio);
 
-	WCN_INFO("%s bt_hostwake gpio=%d intnum=%d\n",
-		 __func__, bt_wake_host_gpio,
+	WCN_INFO("%s bt_hostwake gpio=%d mul-sel=%d pull=%d "
+		 "drv_level=%d data=%d intnum=%d\n",
+		 __func__, config.gpio, config.mul_sel, config.pull,
+		 config.drv_level, config.data,
 		 marlin_dev->bt_wake_host_int_num);
 
 	ret = device_init_wakeup(dev, true);
@@ -2347,10 +2355,9 @@ static int marlin_start_run(void)
 	return ret;
 }
 
-#if IS_ENABLED(CONFIG_AW_BIND_VERIFY)
+#ifdef CONFIG_AW_BIND_VERIFY
 extern int wcn_bind_verify_calculate_verify_data
 	(uint8_t *confuse_data, uint8_t *verify_data);
-
 static int marlin_bind_verify(void)
 {
 	unsigned char din[16], dout[16];
@@ -2419,7 +2426,7 @@ static int check_cp_ready(void)
 				marlin_dev->sync_f.prj_type);
 		if (marlin_dev->sync_f.init_status == SYNC_ALL_FINISHED)
 			i = 0;
-#if IS_ENABLED(CONFIG_AW_BIND_VERIFY)
+#ifdef CONFIG_AW_BIND_VERIFY
 		else if (marlin_dev->sync_f.init_status ==
 			SYNC_VERIFY_WAITING) {
 			ret = marlin_bind_verify();
@@ -2798,11 +2805,10 @@ static void power_state_notify_or_not(int subsys, int poweron)
 	}
 }
 
-static int marlin_scan_finish(void)
+static void marlin_scan_finish(void)
 {
 	WCN_INFO("marlin_scan_finish!\n");
 	complete(&marlin_dev->carddetect_done);
-	return 0;
 }
 
 int find_firmware_path(void)

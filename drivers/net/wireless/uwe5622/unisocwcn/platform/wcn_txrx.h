@@ -19,6 +19,7 @@
 #include <linux/version.h>
 #include <linux/wait.h>
 #if KERNEL_VERSION(4, 14, 0) <= LINUX_VERSION_CODE
+#include <linux/wakelock.h>
 #endif
 
 #include "mdbg_type.h"
@@ -49,7 +50,11 @@ struct ring_rx_data {
 
 struct ring_device {
 	struct mdbg_ring_t	*ring;
-	struct wakeup_source	*rw_ws;
+#if KERNEL_VERSION(4, 14, 0) <= LINUX_VERSION_CODE
+	struct wake_lock	rw_wake_lock;
+#else
+	struct wakeup_source	rw_wake_lock;
+#endif
 	spinlock_t		rw_lock;
 	struct mutex mdbg_read_mutex;
 	struct list_head	rx_head;

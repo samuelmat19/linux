@@ -39,19 +39,14 @@ static void data_left_shift(unsigned char data_inout)
 
 static void get_time(unsigned char data_inout)
 {
-	struct timespec now;
-
-	getnstimeofday(&now);
 	switch (data_inout) {
 	case BT_DATA_OUT:
-		data_dump->txtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv.tv_sec = now.tv_sec;
-		data_dump->txtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv.tv_usec = now.tv_nsec/1000;
+		do_gettimeofday(&(data_dump->txtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv));
 		rtc_time_to_tm(data_dump->txtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv.tv_sec,
 		&(data_dump->txtime_t[BT_MAX_DUMP_FRAME_LEN - 1].rtc_t));
 		break;
 	case BT_DATA_IN:
-		data_dump->rxtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv.tv_sec = now.tv_sec;
-		data_dump->rxtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv.tv_usec = now.tv_nsec/1000;
+		do_gettimeofday(&(data_dump->rxtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv));
 		rtc_time_to_tm(data_dump->rxtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv.tv_sec,
 		&(data_dump->rxtime_t[BT_MAX_DUMP_FRAME_LEN - 1].rtc_t));
 		break;

@@ -60,6 +60,7 @@
 #define BOOST_RXNUM_LEVEL	16
 
 #ifdef SPRDWL_TX_SELF
+#include <linux/wakelock.h>
 struct sprdwl_tx_buf {
 	unsigned char   *base;
 	unsigned short  buf_len;

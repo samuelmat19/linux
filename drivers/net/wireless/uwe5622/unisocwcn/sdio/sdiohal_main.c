@@ -55,6 +55,8 @@ extern int rockchip_wifi_set_carddetect(int val);
 #ifdef CONFIG_AW_BOARD
 extern void sunxi_mmc_rescan_card(unsigned int ids);
 extern int sunxi_wlan_get_bus_index(void);
+extern int sunxi_wlan_get_oob_irq(void);
+extern int sunxi_wlan_get_oob_irq_flags(void);
 #endif
 
 #ifndef MMC_CAP2_SDIO_IRQ_NOTHREAD
@@ -1668,7 +1670,7 @@ static int sdiohal_resume(struct device *dev)
 		enable_irq(p_data->irq_num);
 #endif
 
-	for (chn = SDIO_CHANNEL_NUM; chn >= 0; chn--) {
+	for (chn = 0; chn < SDIO_CHANNEL_NUM; chn++) {
 		sdiohal_ops = chn_ops(chn);
 		if (sdiohal_ops && sdiohal_ops->power_notify) {
 			ret = sdiohal_ops->power_notify(chn, true);
