@@ -3300,6 +3300,18 @@ F:	include/linux/bootsplash.h
 F:	include/uapi/linux/bootsplash_file.h
 F:	tools/bootsplash/*
 
+BOOTSPLASH
+M:	Max Staudt <mstaudt@suse.de>
+L:	linux-fbdev@vger.kernel.org
+S:	Maintained
+F:	Documentation/ABI/testing/sysfs-platform-bootsplash
+F:	Documentation/bootsplash.rst
+F:	drivers/video/fbdev/core/bootsplash*.*
+F:	drivers/video/fbdev/core/dummycon.c
+F:	include/linux/bootsplash.h
+F:	include/uapi/linux/bootsplash_file.h
+F:	tools/bootsplash/*
+
 BPF (Safe dynamic programs and tools)
 M:	Alexei Starovoitov <ast@kernel.org>
 M:	Daniel Borkmann <daniel@iogearbox.net>
