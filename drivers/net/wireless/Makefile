@@ -21,8 +21,6 @@ obj-$(CONFIG_WLAN_VENDOR_TI) += ti/
 obj-$(CONFIG_WLAN_VENDOR_ZYDAS) += zydas/
 obj-$(CONFIG_WLAN_VENDOR_QUANTENNA) += quantenna/
 
-obj-$(CONFIG_SPARD_WLAN_SUPPORT) += uwe5622/
-
 # 16-bit wireless PCMCIA client drivers
 obj-$(CONFIG_PCMCIA_RAYCS)	+= ray_cs.o
 obj-$(CONFIG_PCMCIA_WL3501)	+= wl3501_cs.o
@@ -33,3 +31,7 @@ obj-$(CONFIG_MAC80211_HWSIM)	+= mac80211_hwsim.o
 
 obj-$(CONFIG_VIRT_WIFI)	+= virt_wifi.o
 
+obj-$(CONFIG_BCMDHD)	+= bcmdhd/
+obj-$(CONFIG_XR819_WLAN)   += xr819/
+obj-$(CONFIG_XR829_WLAN)   += xr829/
+obj-$(CONFIG_SPARD_WLAN_SUPPORT) += uwe5622/
