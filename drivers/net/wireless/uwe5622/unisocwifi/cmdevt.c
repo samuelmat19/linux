@@ -253,12 +253,8 @@ int sprdwl_cmd_init(void)
 	struct sprdwl_cmd *cmd = &g_sprdwl_cmd;
 	/* memset(cmd, 0, sizeof(*cmd)); */
 	cmd->data = NULL;
-#ifdef CONFIG_WIFI_RK_PM_PRIVATE_API
 	cmd->wake_lock = wakeup_source_register(sprdwl_dev,
 						"Wi-Fi_cmd_wakelock");
-#else
-	cmd->wake_lock = wakeup_source_register("Wi-Fi_cmd_wakelock");
-#endif
 	if (!cmd->wake_lock) {
 		wl_err("%s wakeup source register error.\n", __func__);
 		return -EINVAL;
@@ -681,7 +677,7 @@ int sprdwl_sync_version(struct sprdwl_priv *priv)
 	struct sprdwl_cmd_api_t *drv_api = NULL;
 	struct sprdwl_cmd_api_t *fw_api = NULL;
 	u16 r_len = sizeof(*fw_api);
-	u8 r_buf[r_len];
+	u8 r_buf[sizeof(*fw_api)];
 	int ret = 0;
 
 	msg = sprdwl_cmd_getbuf(priv, sizeof(struct sprdwl_cmd_api_t),
@@ -821,7 +817,7 @@ int sprdwl_get_fw_info(struct sprdwl_priv *priv)
 	struct sprdwl_tlv_data *tlv;
 	u16 r_len = sizeof(*p) + GET_INFO_TLV_RBUF_SIZE;
 	u16 r_len_ori = r_len;
-	u8 r_buf[r_len];
+	u8 r_buf[sizeof(*p) + GET_INFO_TLV_RBUF_SIZE];
 	u8 compat_ver = 0;
 	unsigned int len_count = 0;
 	bool b_tlv_data_chk = true;
@@ -3244,6 +3240,7 @@ int sprdwl_fw_power_down_ack(struct sprdwl_priv *priv, u8 ctx_id)
 	ret =  sprdwl_cmd_send_recv(priv, msg, CMD_WAIT_TIMEOUT, NULL, NULL);
 
 	if (intf->fw_power_down == 1) {
+		sprdwcn_bus_allow_sleep(WIFI);
 		sprdwl_unboost();
 	}
 
@@ -3595,7 +3592,7 @@ int sprdwl_set_packet_offload(struct sprdwl_priv *priv, u8 vif_ctx_id,
 	struct sprdwl_cmd_packet_offload *p;
 	struct sprdwl_cmd_packet_offload *packet = NULL;
 	u16 r_len = sizeof(*packet);
-	u8 r_buf[r_len];
+	u8 r_buf[sizeof(*packet)];
 
 	msg = sprdwl_cmd_getbuf(priv, sizeof(*p) + len, vif_ctx_id,
 				SPRDWL_HEAD_RSP, WIFI_CMD_PACKET_OFFLOAD);

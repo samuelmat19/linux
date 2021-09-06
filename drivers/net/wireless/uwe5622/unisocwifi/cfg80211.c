@@ -569,11 +569,10 @@ static int sprdwl_cfg80211_del_iface(struct wiphy *wiphy,
 	spin_unlock_bh(&priv->list_lock);
 
 	if (vif != NULL) {
-		sprdwl_del_iface(priv, vif);
-
 		spin_lock_bh(&priv->list_lock);
 		list_del(&vif->vif_node);
 		spin_unlock_bh(&priv->list_lock);
+		sprdwl_del_iface(priv, vif);
 	}
 
 	return 0;
@@ -2210,7 +2209,7 @@ void sprdwl_report_scan_result(struct sprdwl_vif *vif, u16 chan, s16 rssi,
 	ie = mgmt->u.probe_resp.variable;
 	ielen = len - offsetof(struct ieee80211_mgmt, u.probe_resp.variable);
 	/* framework use system bootup time */
-	get_monotonic_boottime(&ts);
+	ts = ktime_to_timespec(ktime_get_boottime());
 	tsf = (u64)ts.tv_sec * 1000000 + div_u64(ts.tv_nsec, 1000);
 	beacon_interval = le16_to_cpu(mgmt->u.probe_resp.beacon_int);
 	capability = le16_to_cpu(mgmt->u.probe_resp.capab_info);
@@ -2335,7 +2334,7 @@ void sprdwl_report_connection(struct sprdwl_vif *vif,
 		ielen = conn_info->bea_ie_len - offsetof(struct ieee80211_mgmt,
 						 u.probe_resp.variable);
 		/* framework use system bootup time */
-		get_monotonic_boottime(&ts);
+		ts = ktime_to_timespec(ktime_get_boottime());
 		tsf = (u64)ts.tv_sec * 1000000 + div_u64(ts.tv_nsec, 1000);
 		beacon_interval = le16_to_cpu(mgmt->u.probe_resp.beacon_int);
 		capability = le16_to_cpu(mgmt->u.probe_resp.capab_info);
@@ -2673,6 +2672,21 @@ static int sprdwl_cfg80211_mgmt_tx(struct wiphy *wiphy,
 				     ieee80211_frequency_to_channel
 				     (chan->center_freq), dont_wait_for_ack,
 				     wait, cookie, buf, len);
+
+		if (ret == 0 && len == 217 && (chan->center_freq == 2412 || chan->center_freq == 5200)) {
+			int type = ((*buf) & IEEE80211_FCTL_FTYPE) >> 2;
+			int subtype = ((*buf) & IEEE80211_FCTL_STYPE) >> 4;
+			int action = *(buf + MAC_LEN);
+			int action_subtype = *(buf + ACTION_SUBTYPE_OFFSET);
+			if (type == IEEE80211_FTYPE_MGMT && subtype == ACTION_TYPE &&
+				action == PUB_ACTION && action_subtype == 1 &&
+				buf[4] == 0x00 && buf[5] == 0x01 && buf[6] == 0x02 &&
+				buf[7] == 0x03 && buf[8] == 0x04 && buf[9] == 0x05) {
+				printk("sprdwl: %s(%d), DPP Frame Received\n", __func__, __LINE__);
+				cfg80211_mgmt_tx_status(wdev, *cookie, buf, len, 0, GFP_KERNEL);
+			}
+		}
+
 		if (ret)
 			if (!dont_wait_for_ack)
 				cfg80211_mgmt_tx_status(wdev, *cookie, buf, len,
