@@ -58,6 +58,20 @@
 	};
 };
 
+
+&i2s0 {
+       status = "okay";
+};
+
+&codec {
+	allwinner,audio-routing =
+		"Speaker", "LINEOUT",
+		"MIC1", "Mic",
+		"Mic",  "MBIAS";
+	allwinner,pa-gpios = <&pio 6 6 GPIO_ACTIVE_HIGH>; /* PG6 */
+	status = "okay";
+};
+
 &csi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&csi1_8bit_pins>;
@@ -73,6 +87,12 @@
 			pclk-sample = <1>;  /* Rising */
 		};
 	};
+};
+
+&ehci0 {
+	phys = <&usbphy 0>;
+	phy-names = "usb";
+	status = "okay";
 };
 
 &emac {
@@ -151,6 +171,12 @@
 	status = "okay";
 };
 
+&ohci0 {
+	phys = <&usbphy 0>;
+	phy-names = "usb";
+	status = "okay";
+};
+
 &pio {
 	vcc-pd-supply = <&reg_dcdc3>;
 	vcc-pe-supply = <&reg_ldo3>;
@@ -214,11 +240,6 @@
 };
 
 &uart2 {
-	status = "okay";
-};
-
-&usb_otg {
-	dr_mode = "host";
 	status = "okay";
 };
 
