@@ -17,6 +17,7 @@
  * GNU General Public License for more details.
  */
 
+#include <linux/timekeeping.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/kthread.h>
@@ -238,7 +239,7 @@ int sdiohal_sdio_pt_write(unsigned char *src, unsigned int datalen)
 	static long time_total_ns;
 	static int times_count;
 
-	getnstimeofday(&tm_begin);
+	ktime_get_real_ts64(&tm_begin);
 	if (unlikely(p_data->card_dump_flag == true)) {
 		sdiohal_err("%s line %d dump happened\n", __func__, __LINE__);
 		return -ENODEV;
@@ -265,7 +266,7 @@ int sdiohal_sdio_pt_write(unsigned char *src, unsigned int datalen)
 	sdiohal_op_leave();
 	sdiohal_card_unlock(p_data);
 
-	getnstimeofday(&tm_end);
+	ktime_get_real_ts64(&tm_end);
 	time_total_ns += timespec64_to_ns(&tm_end) - timespec64_to_ns(&tm_begin);
 	times_count++;
 	if (!(times_count % PERFORMANCE_COUNT)) {
@@ -286,7 +287,7 @@ int sdiohal_sdio_pt_read(unsigned char *src, unsigned int datalen)
 	static long time_total_ns;
 	static int times_count;
 
-	getnstimeofday(&tm_begin);
+	ktime_get_real_ts64(&tm_begin);
 
 	if (unlikely(p_data->card_dump_flag == true)) {
 		sdiohal_err("%s line %d dump happened\n", __func__, __LINE__);
@@ -307,7 +308,7 @@ int sdiohal_sdio_pt_read(unsigned char *src, unsigned int datalen)
 	sdiohal_op_leave();
 	sdiohal_card_unlock(p_data);
 
-	getnstimeofday(&tm_end);
+	ktime_get_real_ts64(&tm_end);
 	time_total_ns += timespec64_to_ns(&tm_end) - timespec64_to_ns(&tm_begin);
 	times_count++;
 	if (!(times_count % PERFORMANCE_COUNT)) {
@@ -458,7 +459,7 @@ int sdiohal_adma_pt_write(struct sdiohal_list_t *data_list)
 	static long time_total_ns;
 	static int times_count;
 
-	getnstimeofday(&tm_begin);
+	ktime_get_real_ts64(&tm_begin);
 
 	if (unlikely(p_data->card_dump_flag == true)) {
 		sdiohal_err("%s line %d dump happened\n", __func__, __LINE__);
@@ -481,7 +482,7 @@ int sdiohal_adma_pt_write(struct sdiohal_list_t *data_list)
 	sdiohal_op_leave();
 	sdiohal_card_unlock(p_data);
 
-	getnstimeofday(&tm_end);
+	ktime_get_real_ts64(&tm_end);
 	time_total_ns += timespec64_to_ns(&tm_end) - timespec64_to_ns(&tm_begin);
 	times_count++;
 	if (!(times_count % PERFORMANCE_COUNT)) {
@@ -502,7 +503,7 @@ int sdiohal_adma_pt_read(struct sdiohal_list_t *data_list)
 	static long time_total_ns;
 	static int times_count;
 
-	getnstimeofday(&tm_begin);
+	ktime_get_real_ts64(&tm_begin);
 
 	if (unlikely(p_data->card_dump_flag == true)) {
 		sdiohal_err("%s line %d dump happened\n", __func__, __LINE__);
@@ -523,7 +524,7 @@ int sdiohal_adma_pt_read(struct sdiohal_list_t *data_list)
 	sdiohal_op_leave();
 	sdiohal_card_unlock(p_data);
 
-	getnstimeofday(&tm_end);
+	ktime_get_real_ts64(&tm_end);
 	time_total_ns += timespec64_to_ns(&tm_end) - timespec64_to_ns(&tm_begin);
 	times_count++;
 	if (!(times_count % PERFORMANCE_COUNT)) {
@@ -1167,7 +1168,7 @@ static irqreturn_t sdiohal_irq_handler(int irq, void *para)
 	sdiohal_lock_rx_ws();
 	sdiohal_disable_rx_irq(irq);
 
-	getnstimeofday(&p_data->tm_begin_irq);
+	ktime_get_real_ts64(&p_data->tm_begin_irq);
 	sdiohal_rx_up();
 
 	return IRQ_HANDLED;

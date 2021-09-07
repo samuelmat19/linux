@@ -10,6 +10,7 @@
  * GNU General Public License for more details.
  */
 
+#include <linux/timekeeping.h>
 #include <linux/delay.h>
 #include <wcn_bus.h>
 
@@ -100,9 +101,9 @@ static int wait_wcnevent(struct event_t *event, int timeout)
 	if (timeout < 0) {
 		int dt;
 		struct timeval time;
-		struct timespec now;
+		struct timespec64 now;
 
-		getnstimeofday(&now);
+		ktime_get_real_ts64(&now);
 		time.tv_sec = now.tv_sec;
 		time.tv_usec = now.tv_nsec/1000;
 		if (event->wait_sem.count == 0) {
@@ -1385,10 +1386,10 @@ int edma_tp_count(int chn, void *head, void *tail, int num)
 	struct mbuf_t *mbuf;
 	static int bytecount;
 	static struct timeval start_time, time;
-	struct timespec now;
+	struct timespec64 now;
 
 	for (i = 0, mbuf = (struct mbuf_t *)head; i < num; i++) {
-		getnstimeofday(&now);
+		ktime_get_real_ts64(&now);
 		time.tv_sec = now.tv_sec;
 		time.tv_usec = now.tv_nsec/1000;
 

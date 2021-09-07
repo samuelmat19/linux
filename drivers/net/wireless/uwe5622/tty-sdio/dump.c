@@ -11,6 +11,7 @@
  * GNU General Public License for more details.
  */
 
+#include <linux/timekeeping.h>
 #include <linux/vmalloc.h>
 #include "dump.h"
 
@@ -39,9 +40,9 @@ static void data_left_shift(unsigned char data_inout)
 
 static void get_time(unsigned char data_inout)
 {
-	struct timespec now;
+	struct timespec64 now;
 
-	getnstimeofday(&now);
+	ktime_get_real_ts64(&now);
 	switch (data_inout) {
 	case BT_DATA_OUT:
 		data_dump->txtime_t[BT_MAX_DUMP_FRAME_LEN - 1].tv.tv_sec = now.tv_sec;

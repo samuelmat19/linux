@@ -1,3 +1,4 @@
+#include <linux/timekeeping.h>
 #include "sdiohal.h"
 
 #define SDIOHAL_TX_RETRY_MAX 3
@@ -154,7 +155,7 @@ int sdiohal_tx_thread(void *data)
 			continue;
 		}
 
-		getnstimeofday(&p_data->tm_end_sch);
+		ktime_get_real_ts64(&p_data->tm_end_sch);
 		sdiohal_pr_perf("tx sch time:%ld\n",
 			(long)(timespec64_to_ns(&p_data->tm_end_sch)
 			- timespec64_to_ns(&p_data->tm_begin_sch)));
@@ -165,7 +166,7 @@ int sdiohal_tx_thread(void *data)
 		sdiohal_cp_tx_wakeup(PACKER_TX);
 
 		while (!sdiohal_is_tx_list_empty()) {
-			getnstimeofday(&tm_begin);
+			ktime_get_real_ts64(&tm_begin);
 
 			sdiohal_tx_find_data_list(&data_list);
 			if (p_data->adma_tx_enable) {
@@ -174,7 +175,7 @@ int sdiohal_tx_thread(void *data)
 			} else
 				sdiohal_tx_data_list_send(&data_list, true);
 
-			getnstimeofday(&tm_end);
+			ktime_get_real_ts64(&tm_end);
 			time_total_ns += timespec64_to_ns(&tm_end)
 				- timespec64_to_ns(&tm_begin);
 			times_count++;

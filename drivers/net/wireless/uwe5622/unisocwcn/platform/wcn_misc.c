@@ -15,6 +15,7 @@
  * GNU General Public License for more details.
  */
 
+#include <linux/timekeeping.h>
 #include <linux/mutex.h>
 #include <linux/version.h>
 #include <linux/time.h>
