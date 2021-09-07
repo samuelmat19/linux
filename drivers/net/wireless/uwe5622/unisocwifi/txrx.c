@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  */
 
-#include <time.h>
+#include <linux/time.h>
 #include <linux/skbuff.h>
 
 #include "sprdwl.h"

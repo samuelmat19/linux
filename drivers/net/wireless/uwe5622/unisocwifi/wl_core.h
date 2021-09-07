@@ -18,7 +18,7 @@
 #ifndef __WL_CORE_H__
 #define __WL_CORE_H__
 
-#include <time.h>
+#include <linux/time.h>
 #include <linux/types.h>
 #include <linux/wait.h>
 #include <linux/spinlock.h>
@@ -78,7 +78,7 @@ struct sprdwl_peer_entry {
 	unsigned long ba_tx_done_map;
 	u8 vowifi_enabled;
 	u8 vowifi_pkt_cnt;
-	struct timespec time[6 + 1];
+	struct timespec64 time[6 + 1];
 };
 
 #if defined(MORE_DEBUG)

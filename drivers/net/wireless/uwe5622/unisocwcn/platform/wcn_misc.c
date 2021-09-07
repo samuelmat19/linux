@@ -15,7 +15,6 @@
  * GNU General Public License for more details.
  */
 
-#include <time.h>
 #include <linux/mutex.h>
 #include <linux/version.h>
 #include <linux/time.h>
@@ -101,7 +100,7 @@ long int mdbg_send_atcmd(char *buf, long int len, enum atcmd_owner owner)
 }
 
 /* copy from function: kdb_gmtime */
-static void wcn_gmtime(struct timespec *tv, struct wcn_tm *tm)
+static void wcn_gmtime(struct timespec64 *tv, struct wcn_tm *tm)
 {
 	/* This will work from 1970-2099, 2100 is not a leap year */
 	static int mon_day[] = { 31, 29, 31, 30, 31, 30, 31,
@@ -131,18 +130,13 @@ static void wcn_gmtime(struct timespec *tv, struct wcn_tm *tm)
 /* AP notify BTWF time by at+aptime=... cmd */
 long int wcn_ap_notify_btwf_time(void)
 {
-	struct timespec now;
+	struct timespec64 now;
 	struct wcn_tm tm;
 	char aptime[64];
 	long int send_cnt = 0;
-	struct timespec64 ts64;
 
 	/* get ap kernel time and transfer to China-BeiJing Time */
-	ktime_get_real_ts64(&ts64);
-
-	// Cast the ts64 to the timespec now
-	now.tv_sec = ts64.tv_sec;
-	now.tv_nsec = ts64.tv_nsec;
+	ktime_get_real_ts64(&now);
 
 	wcn_gmtime(&now, &tm);
 	tm.tm_hour = (tm.tm_hour + WCN_BTWF_TIME_OFFSET) % 24;
