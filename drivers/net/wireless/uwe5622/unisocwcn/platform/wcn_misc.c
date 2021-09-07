@@ -15,6 +15,7 @@
  * GNU General Public License for more details.
  */
 
+#include <time.h>
 #include <linux/mutex.h>
 #include <linux/version.h>
 #include <linux/time.h>
@@ -138,7 +139,11 @@ long int wcn_ap_notify_btwf_time(void)
 
 	/* get ap kernel time and transfer to China-BeiJing Time */
 	ktime_get_real_ts64(&ts64);
-	now = timespec64_to_timespec(ts64);
+
+	// Cast the ts64 to the timespec now
+	now.tv_sec = ts64.tv_sec;
+	now.tv_nsec = ts64.tv_nsec;
+
 	wcn_gmtime(&now, &tm);
 	tm.tm_hour = (tm.tm_hour + WCN_BTWF_TIME_OFFSET) % 24;
 

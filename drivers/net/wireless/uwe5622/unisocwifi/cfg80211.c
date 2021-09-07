@@ -23,6 +23,7 @@
  * GNU General Public License for more details.
  */
 
+#include <linux/ktime.h>
 #include "sprdwl.h"
 #include "cfg80211.h"
 #include "cmdevt.h"
@@ -2209,8 +2210,11 @@ void sprdwl_report_scan_result(struct sprdwl_vif *vif, u16 chan, s16 rssi,
 	ie = mgmt->u.probe_resp.variable;
 	ielen = len - offsetof(struct ieee80211_mgmt, u.probe_resp.variable);
 	/* framework use system bootup time */
-	ts = ktime_to_timespec(ktime_get_boottime());
-	tsf = (u64)ts.tv_sec * 1000000 + div_u64(ts.tv_nsec, 1000);
+	struct timespec64 ts64 = ktime_to_timespec64(ktime_get_boottime());
+	ts.tv_sec = ts64.tv_sec;
+	ts.tv_nsec = ts64.tv_nsec;
+
+	tsf = (u64) ts.tv_sec * 1000000 + div_u64(ts.tv_nsec, 1000);
 	beacon_interval = le16_to_cpu(mgmt->u.probe_resp.beacon_int);
 	capability = le16_to_cpu(mgmt->u.probe_resp.capab_info);
 
@@ -2698,8 +2702,17 @@ static int sprdwl_cfg80211_mgmt_tx(struct wiphy *wiphy,
 
 static void sprdwl_cfg80211_mgmt_frame_register(struct wiphy *wiphy,
 						struct wireless_dev *wdev,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0))
+						struct mgmt_frame_regs *upd)
+#else
 						u16 frame_type, bool reg)
+#endif
 {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0))
+	u16 frame_type = BIT(upd->global_stypes << 4);
+	bool reg = false;
+#endif
+
 	struct sprdwl_vif *vif = container_of(wdev, struct sprdwl_vif, wdev);
 	struct sprdwl_work *misc_work;
 	struct sprdwl_reg_mgmt *reg_mgmt;
@@ -3259,7 +3272,11 @@ static struct cfg80211_ops sprdwl_cfg80211_ops = {
 	.remain_on_channel = sprdwl_cfg80211_remain_on_channel,
 	.cancel_remain_on_channel = sprdwl_cfg80211_cancel_remain_on_channel,
 	.mgmt_tx = sprdwl_cfg80211_mgmt_tx,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0))
+	.update_mgmt_frame_registrations = sprdwl_cfg80211_mgmt_frame_register,
+#else 
 	.mgmt_frame_register = sprdwl_cfg80211_mgmt_frame_register,
+#endif
 	.set_power_mgmt = sprdwl_cfg80211_set_power_mgmt,
 	.set_cqm_rssi_config = sprdwl_cfg80211_set_cqm_rssi_config,
 	.sched_scan_start = sprdwl_cfg80211_sched_scan_start,

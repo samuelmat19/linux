@@ -3,6 +3,8 @@
 # Makefile for the Linux Wireless network device drivers.
 #
 
+obj-$(CONFIG_SPARD_WLAN_SUPPORT) += uwe5622/
+
 obj-$(CONFIG_WLAN_VENDOR_ADMTEK) += admtek/
 obj-$(CONFIG_WLAN_VENDOR_ATH) += ath/
 obj-$(CONFIG_WLAN_VENDOR_ATMEL) += atmel/
@@ -34,4 +36,4 @@ obj-$(CONFIG_VIRT_WIFI)	+= virt_wifi.o
 obj-$(CONFIG_BCMDHD)	+= bcmdhd/
 obj-$(CONFIG_XR819_WLAN)   += xr819/
 obj-$(CONFIG_XR829_WLAN)   += xr829/
-obj-$(CONFIG_SPARD_WLAN_SUPPORT) += uwe5622/
+

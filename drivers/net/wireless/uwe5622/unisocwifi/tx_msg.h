@@ -1,5 +1,7 @@
 #ifndef __TX_MSG_H__
 #define __TX_MSG_H__
+
+#include <time.h>
 #include <linux/types.h>
 #include <linux/workqueue.h>
 #include "wl_core.h"
