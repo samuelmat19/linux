@@ -234,7 +234,7 @@ int sdiohal_sdio_pt_write(unsigned char *src, unsigned int datalen)
 {
 	struct sdiohal_data_t *p_data = sdiohal_get_data();
 	int ret = 0;
-	struct timespec tm_begin, tm_end;
+	struct timespec64 tm_begin, tm_end;
 	static long time_total_ns;
 	static int times_count;
 
@@ -266,7 +266,7 @@ int sdiohal_sdio_pt_write(unsigned char *src, unsigned int datalen)
 	sdiohal_card_unlock(p_data);
 
 	getnstimeofday(&tm_end);
-	time_total_ns += timespec_to_ns(&tm_end) - timespec_to_ns(&tm_begin);
+	time_total_ns += timespec64_to_ns(&tm_end) - timespec64_to_ns(&tm_begin);
 	times_count++;
 	if (!(times_count % PERFORMANCE_COUNT)) {
 		sdiohal_pr_perf("tx avg time:%ld len=%d\n",
@@ -282,7 +282,7 @@ int sdiohal_sdio_pt_read(unsigned char *src, unsigned int datalen)
 {
 	struct sdiohal_data_t *p_data = sdiohal_get_data();
 	int ret = 0;
-	struct timespec tm_begin, tm_end;
+	struct timespec64 tm_begin, tm_end;
 	static long time_total_ns;
 	static int times_count;
 
@@ -308,7 +308,7 @@ int sdiohal_sdio_pt_read(unsigned char *src, unsigned int datalen)
 	sdiohal_card_unlock(p_data);
 
 	getnstimeofday(&tm_end);
-	time_total_ns += timespec_to_ns(&tm_end) - timespec_to_ns(&tm_begin);
+	time_total_ns += timespec64_to_ns(&tm_end) - timespec64_to_ns(&tm_begin);
 	times_count++;
 	if (!(times_count % PERFORMANCE_COUNT)) {
 		sdiohal_pr_perf("rx avg time:%ld len=%d\n",
@@ -454,7 +454,7 @@ int sdiohal_adma_pt_write(struct sdiohal_list_t *data_list)
 {
 	struct sdiohal_data_t *p_data = sdiohal_get_data();
 	int ret = 0;
-	struct timespec tm_begin, tm_end;
+	struct timespec64 tm_begin, tm_end;
 	static long time_total_ns;
 	static int times_count;
 
@@ -482,7 +482,7 @@ int sdiohal_adma_pt_write(struct sdiohal_list_t *data_list)
 	sdiohal_card_unlock(p_data);
 
 	getnstimeofday(&tm_end);
-	time_total_ns += timespec_to_ns(&tm_end) - timespec_to_ns(&tm_begin);
+	time_total_ns += timespec64_to_ns(&tm_end) - timespec64_to_ns(&tm_begin);
 	times_count++;
 	if (!(times_count % PERFORMANCE_COUNT)) {
 		sdiohal_pr_perf("tx avg time:%ld\n",
@@ -498,7 +498,7 @@ int sdiohal_adma_pt_read(struct sdiohal_list_t *data_list)
 {
 	struct sdiohal_data_t *p_data = sdiohal_get_data();
 	int ret = 0;
-	struct timespec tm_begin, tm_end;
+	struct timespec64 tm_begin, tm_end;
 	static long time_total_ns;
 	static int times_count;
 
@@ -524,7 +524,7 @@ int sdiohal_adma_pt_read(struct sdiohal_list_t *data_list)
 	sdiohal_card_unlock(p_data);
 
 	getnstimeofday(&tm_end);
-	time_total_ns += timespec_to_ns(&tm_end) - timespec_to_ns(&tm_begin);
+	time_total_ns += timespec64_to_ns(&tm_end) - timespec64_to_ns(&tm_begin);
 	times_count++;
 	if (!(times_count % PERFORMANCE_COUNT)) {
 		sdiohal_pr_perf("rx avg time:%ld\n",

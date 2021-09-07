@@ -1,6 +1,7 @@
 #ifndef __SDIOHAL_H__
 #define __SDIOHAL_H__
 
+#include <linux/time.h>
 #include <linux/delay.h>
 #include <linux/device.h>
 #include <linux/scatterlist.h>
@@ -356,10 +357,10 @@ struct sdiohal_data_t {
 	char *dtbs_buf;
 
 	/* for performance statics */
-	struct timespec tm_begin_sch;
-	struct timespec tm_end_sch;
-	struct timespec tm_begin_irq;
-	struct timespec tm_end_irq;
+	struct timespec64 tm_begin_sch;
+	struct timespec64 tm_end_sch;
+	struct timespec64 tm_begin_irq;
+	struct timespec64 tm_end_irq;
 
 	struct wakeup_source *scan_ws;
 	struct completion scan_done;
