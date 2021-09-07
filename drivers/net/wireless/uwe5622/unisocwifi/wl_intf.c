@@ -32,6 +32,10 @@
 .rx_threshold = threshold, .timeout = time, .pop_link = pop,\
 .push_link = push, .tx_complete = complete, .power_notify = suspend }
 
+#ifndef CPUFREQ_ADJUST
+#define CPUFREQ_ADJUST CPUFREQ_CREATE_POLICY
+#endif
+
 struct sprdwl_intf_ops g_intf_ops;
 
 static inline struct sprdwl_intf *get_intf(void)
@@ -1728,7 +1732,7 @@ void sprdwl_tx_delba(struct sprdwl_intf *intf,
 
 int sprdwl_notifier_boost(struct notifier_block *nb, unsigned long event, void *data)
 {
-	struct cpufreq_policy *policy = data;
+	struct cpufreq_policy_data *policy = data;
 	unsigned long min_freq;
 	unsigned long max_freq = policy->cpuinfo.max_freq;
 	struct sprdwl_intf *intf = get_intf();

@@ -11,6 +11,8 @@
 #define LOAD_BUF_SIZE 1024
 #define MAX_PATH_NUM  3
 
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+
 static char *dbg_ini_file_path[MAX_PATH_NUM] = {
 	"/data/misc/wifi/wifi_dbg.ini",
 	"/vendor/etc/wifi/wifi_dbg.ini",
@@ -21,7 +23,6 @@ static int dbg_load_ini_resource(char *path[], char *buf, int size)
 {
 	int ret;
 	int index = 0;
-	mm_segment_t oldfs;
 	struct file *filp = (struct file *)-ENOENT;
 
 	for (index = 0; index < MAX_PATH_NUM; index++) {
@@ -34,14 +35,11 @@ static int dbg_load_ini_resource(char *path[], char *buf, int size)
 	if (IS_ERR(filp))
 		return -ENOENT;
 
-	oldfs = get_fs();
-	set_fs(KERNEL_DS);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 1)
 	ret = kernel_read(filp, buf, size, &filp->f_pos);
 #else
 	ret = kernel_read(filp, filp->f_pos, buf, size);
 #endif
-	set_fs(oldfs);
 
 	filp_close(filp, NULL);
 
