@@ -6,6 +6,7 @@
 #include <linux/clocksource_ids.h>
 
 /* Included from linux/ktime.h */
+#include <linux/ktime.h>
 
 void timekeeping_init(void);
 extern int timekeeping_suspended;
