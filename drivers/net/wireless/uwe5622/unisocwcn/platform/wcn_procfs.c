@@ -420,12 +420,12 @@ static int mdbg_snap_shoot_seq_open(struct inode *inode, struct file *file)
 	return seq_open(file, &mdbg_snap_shoot_seq_ops);
 }
 
-static const struct file_operations mdbg_snap_shoot_seq_fops = {
-	.open = mdbg_snap_shoot_seq_open,
-	.read = seq_read,
-	.write = mdbg_snap_shoot_seq_write,
-	.llseek = seq_lseek,
-	.release = seq_release
+static const struct proc_ops mdbg_snap_shoot_seq_fops = {
+	.proc_open = mdbg_snap_shoot_seq_open,
+	.proc_read = seq_read,
+	.proc_write = mdbg_snap_shoot_seq_write,
+	.proc_lseek = seq_lseek,
+	.proc_release = seq_release
 };
 
 static int mdbg_proc_open(struct inode *inode, struct file *filp)
