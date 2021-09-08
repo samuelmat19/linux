@@ -1,4 +1,4 @@
-#include <bits/types/struct_timeval.h>
+#include <uapi/linux/time.h>
 #include <linux/timekeeping.h>
 #include <linux/debugfs.h>
 #include <linux/file.h>
