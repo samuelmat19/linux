@@ -13,6 +13,8 @@
 
 #ifndef __DUMP_H
 #define __DUMP_H
+
+#include <bits/types/struct_timeval.h>
 #include <linux/time.h>
 #include <linux/rtc.h>
 

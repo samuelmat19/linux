@@ -13,6 +13,8 @@
 #ifndef __EDMA_ENGIN_H__
 #define __EDMA_ENGIN_H__
 
+#include <bits/types/struct_timeval.h>
+
 #include "pcie_dbg.h"
 #include "pcie.h"
 

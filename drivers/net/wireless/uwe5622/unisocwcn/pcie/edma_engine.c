@@ -10,6 +10,7 @@
  * GNU General Public License for more details.
  */
 
+#include <bits/types/struct_timeval.h>
 #include <linux/timekeeping.h>
 #include <linux/delay.h>
 #include <wcn_bus.h>
