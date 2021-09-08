@@ -625,10 +625,10 @@ static ssize_t wcn_platform_write(struct file *filp,
 	return 0;
 }
 
-static const struct file_operations wcn_platform_fs_fops = {
-	.open		= wcn_platform_open,
-	.read		= wcn_platform_read,
-	.write		= wcn_platform_write,
+static const struct proc_ops wcn_platform_fs_fops = {
+	.proc_open		= wcn_platform_open,
+	.proc_read		= wcn_platform_read,
+	.proc_write		= wcn_platform_write,
 };
 
 static inline void wcn_platform_fs_init(struct wcn_device *wcn_dev)

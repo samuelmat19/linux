@@ -74,7 +74,7 @@ static int bluesleep_open_proc_btwrite(struct inode *inode, struct file *file)
 }
 
 static const struct proc_ops lpm_proc_btwrite_fops = {
-	.proc_owner = THIS_MODULE,
+	// .owner = THIS_MODULE,
 	.proc_open = bluesleep_open_proc_btwrite,
 	.proc_read = seq_read,
 	.proc_write = bluesleep_write_proc_btwrite,
