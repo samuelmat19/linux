@@ -22,7 +22,6 @@
 #include <linux/workqueue.h>
 #include <linux/ip.h>
 #include <linux/ipv6.h>
-#include <net/ip.h>
 #include "tx_msg.h"
 #include "rx_msg.h"
 #include "cfg80211.h"
