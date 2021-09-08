@@ -101,8 +101,8 @@ char *tp_tx_buf[TP_TX_BUF_CNT];
 
 struct mchn_ops_t at_tx_ops;
 struct mchn_ops_t at_rx_ops;
-struct timeval tp_tx_start_time;
-struct timeval tp_tx_stop_time;
+struct timespec64 tp_tx_start_time;
+struct timespec64 tp_tx_stop_time;
 int tp_tx_cnt;
 int tp_tx_flag;
 int tp_tx_buf_cnt = TP_TX_BUF_CNT;
@@ -237,15 +237,15 @@ static void sdiohal_throughput_tx_compute_time(void)
 	if (tp_tx_cnt % 500 == 0) {
 		ktime_get_real_ts64(&now);
 		tp_tx_stop_time.tv_sec = now.tv_sec;
-		tp_tx_stop_time.tv_usec = now.tv_nsec/1000;
-		times_count = timeval_to_ns(&tp_tx_stop_time) -
-			timeval_to_ns(&tp_tx_start_time);
+		tp_tx_stop_time.tv_nsec = now.tv_nsec;
+		times_count = timespec64_to_ns(&tp_tx_stop_time) -
+			timespec64_to_ns(&tp_tx_start_time);
 		sdiohal_info("tx->times(500c) is %lldns, tx %d, rx %d\n",
 			     times_count, tp_tx_cnt, rx_pop_cnt);
 		tp_tx_cnt = 0;
 		ktime_get_real_ts64(&now);
 		tp_tx_start_time.tv_sec = now.tv_sec;
-		tp_tx_start_time.tv_usec = now.tv_nsec/1000;
+		tp_tx_start_time.tv_nsec = now.tv_nsec;
 	}
 	sdiohal_throughput_tx();
 }
@@ -549,8 +549,8 @@ int at_list_tx_pop(int channel, struct mbuf_t *head,
 }
 
 int tp_rx_cnt;
-struct timeval tp_rx_start_time;
-struct timeval tp_rx_stop_time;
+struct timespec64 tp_rx_start_time;
+struct timespec64 tp_rx_stop_time;
 struct timespec64 tp_tm_begin;
 int at_list_rx_pop(int channel, struct mbuf_t *head,
 		   struct mbuf_t *tail, int num)
@@ -575,15 +575,15 @@ int at_list_rx_pop(int channel, struct mbuf_t *head,
 	if (tp_rx_cnt / (500*64) == 1) {
 		ktime_get_real_ts64(&now);
 		tp_rx_stop_time.tv_sec = now.tv_sec;
-		tp_rx_stop_time.tv_usec = now.tv_nsec/1000;
-		times_count = timeval_to_ns(&tp_rx_stop_time)
-			- timeval_to_ns(&tp_rx_start_time);
+		tp_rx_stop_time.tv_nsec = now.tv_nsec;
+		times_count = timespec64_to_ns(&tp_rx_stop_time)
+			- timespec64_to_ns(&tp_rx_start_time);
 		sdiohal_info("rx->times(%dc) is %lldns, tx %d, rx %d\n",
 			     tp_rx_cnt, times_count, tp_tx_cnt, rx_pop_cnt);
 		tp_rx_cnt = 0;
 		ktime_get_real_ts64(&now);
 		tp_rx_start_time.tv_sec = now.tv_sec;
-		tp_rx_start_time.tv_usec = now.tv_nsec/1000;
+		tp_rx_start_time.tv_nsec = now.tv_nsec;
 	}
 	ktime_get_real_ts64(&tp_tm_begin);
 
@@ -1134,7 +1134,7 @@ static ssize_t at_cmd_write(struct file *filp,
 		tp_tx_cnt = 0;
 		ktime_get_real_ts64(&now);
 		tp_tx_start_time.tv_sec = now.tv_sec;
-		tp_tx_start_time.tv_usec = now.tv_nsec/1000;
+		tp_tx_start_time.tv_nsec = now.tv_nsec;
 		if ((tp_tx_buf_cnt <= TP_TX_BUF_CNT) &&
 			(tp_tx_buf_len <= TP_TX_BUF_LEN)) {
 			sprdwcn_bus_chn_deinit(&at_tx_ops);

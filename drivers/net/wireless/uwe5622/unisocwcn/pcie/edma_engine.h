@@ -13,7 +13,7 @@
 #ifndef __EDMA_ENGIN_H__
 #define __EDMA_ENGIN_H__
 
-#include <uapi/linux/time.h>
+#include <linux/time.h>
 
 #include "pcie_dbg.h"
 #include "pcie.h"
@@ -298,7 +298,7 @@ struct event_t {
 	int id;
 	int flag;
 	struct semaphore wait_sem;
-	struct timeval time;
+	struct timespec64 time;
 	struct tasklet_struct *tasklet;
 };
 
